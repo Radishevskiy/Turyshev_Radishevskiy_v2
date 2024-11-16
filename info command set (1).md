@@ -25,6 +25,10 @@ python manage.py runserver
 python manage.py migrate
 
 python manage.py makemigrations
+
+pip install django-cleanup
+
+pip install Pillow
 ```
 
 Activating venv python [mac].
