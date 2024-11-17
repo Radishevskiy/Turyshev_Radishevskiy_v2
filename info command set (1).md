@@ -20,15 +20,16 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 pip install django==4.2
 
+pip install django-cleanup
+
+pip install Pillow
+
 python manage.py runserver 
 
 python manage.py migrate
 
 python manage.py makemigrations
 
-pip install django-cleanup
-
-pip install Pillow
 ```
 
 Activating venv python [mac].
