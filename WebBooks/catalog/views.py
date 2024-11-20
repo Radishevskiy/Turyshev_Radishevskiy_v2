@@ -4,9 +4,10 @@ from .models import Book, Author, BookInstance, Genre
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import *
-from .forms import AuthorsForm
+from .forms import AuthorsForm, Form_add_author 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.urls import reverse
 from .models import Book
 from django.views.generic import ListView, DetailView
 
@@ -208,3 +209,42 @@ class AuthorListView(ListView):
 
 class AuthorDetailView(DetailView):
  model = Author
+
+def edit_authors(request): 
+  author = Author.objects.all() 
+  context = {'author': author} 
+  return render(request, "catalog/edit_authors.html", context) 
+
+def add_author(request): 
+  if request.method == 'POST': 
+     form = Form_add_author(request.POST, request.FILES) 
+     if form.is_valid(): 
+        # получить данные из формы 
+        first_name = form.cleaned_data.get("first_name") 
+        last_name = form.cleaned_data.get("last_name") 
+        date_of_birth = form.cleaned_data.get("date_of_birth") 
+        about = form.cleaned_data.get("about") 
+        photo = form.cleaned_data.get("photo") 
+        # создать объект для записи в БД 
+        obj = Author.objects.create( 
+          first_name=first_name, 
+          last_name=last_name, 
+          date_of_birth=date_of_birth, 
+          about=about, 
+          photo=photo) 
+        # сохранить полученные данные 
+        obj.save() 
+        # загрузить страницу со списком автором 
+        return HttpResponseRedirect(reverse('authors-list')) 
+     else: 
+         form = Form_add_author() 
+         context = {"form": form} 
+         return render(request, "catalog/authors_add.html", context)
+
+def delete(request, id): 
+  try: 
+     author = Author.objects.get(id=id) 
+     author.delete() 
+     return HttpResponseRedirect("/edit_authors/") 
+  except: 
+    return HttpResponseNotFound("<h2>Автор не найден</h2>")  
