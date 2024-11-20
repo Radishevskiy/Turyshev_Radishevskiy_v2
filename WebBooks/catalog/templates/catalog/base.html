@@ -48,6 +48,8 @@
                   {% if user.is_authenticated %} 
                     <a class="nav-link" 
                      href="{% url 'edit_authors' %}">Редактор авторов</a> 
+                     <a class="nav-link" 
+                    href="{% url 'edit_books' %}">Редактор книг</a> 
                      <a class="nav-link"
                      href="{% url 'logout'%}?next={{request.path}}">Выход</a> 
                     <div>Вошел: {{ user.get_username }}</div> 

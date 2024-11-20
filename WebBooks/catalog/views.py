@@ -6,9 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import *
 from .forms import AuthorsForm, Form_add_author 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy 
 from django.urls import reverse
 from .models import Book
+from .models import Author 
+from django import forms
 from django.views.generic import ListView, DetailView
 
 # Create your views here.
@@ -30,6 +32,8 @@ def index(request):
     # Данные об авторах книг 
     authors = Author.objects 
     num_authors = Author.objects.count() 
+
+
 
     # Количество посещений этого view, подсчитанное в переменной session 
     num_visits = request.session.get('num_visits', 0) 
@@ -80,6 +84,20 @@ class BookListView(ListView):
     model = Book 
     context_object_name = 'books' 
 
+class BookCreate(CreateView): 
+    model = Book 
+    fields = '__all__' 
+    success_url = reverse_lazy('edit_books') 
+
+class BookDelete(DeleteView): 
+    model = Book 
+    success_url = reverse_lazy('edit_books')    
+
+class BookUpdate(UpdateView): 
+    model = Book 
+    fields = '__all__' 
+    success_url = reverse_lazy('edit_books') 
+
 class BookDetailView(DetailView): 
     model = Book 
     context_object_name = 'book' 
@@ -87,6 +105,27 @@ class BookDetailView(DetailView):
 class AuthorListView(generic.ListView):
     model = Author
     paginate_by = 4
+
+class Form_edit_author(forms.ModelForm): 
+    class Meta: 
+        model = Author 
+        fields = '__all__' 
+
+def edit_author(request, id): 
+    author = Author.objects.get(id=id) 
+    # author = get_object_or_404(Author, pk=id) 
+    if request.method == "POST": 
+        instance = Author.objects.get(pk=id) 
+        form = Form_edit_author(request.POST, request.FILES, instance=instance) 
+        if form.is_valid(): 
+            form.save() 
+        return HttpResponseRedirect("/edit_authors/") 
+    else: 
+        form = Form_edit_author(instance=author) 
+        content = {"form": form} 
+        return render(request, "catalog/edit_author.html", content) 
+
+
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
 
@@ -111,6 +150,11 @@ def create(request):
         author.date_of_death = request.POST.get("date_of_death")
         author.save()
         return HttpResponseRedirect("/authors_add/")
+    
+def edit_books(request): 
+    book = Book.objects.all() 
+    context = {'book': book} 
+    return render(request, "catalog/edit_books.html", context) 
 
 def delete(request, id):
     try:
