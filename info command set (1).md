@@ -20,6 +20,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 pip install django==4.2
 
+pip install djangorestframework
+
 pip install django-cleanup
 
 pip install Pillow
